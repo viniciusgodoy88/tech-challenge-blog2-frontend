@@ -1,0 +1,52 @@
+name: CI/CD Pipeline - Front-End FIAP Pós Tech
+
+# Dispara a esteira a cada push ou Pull Request na branch main/master
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  # ========================================================
+  # ETAPA 1: Continuous Integration (CI) - Instalação & Build
+  # ========================================================
+  build-and-test:
+    name: Build e Validação (CI)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout do código
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: 3. Instalar dependências
+        run: npm ci
+
+      - name: 4. Executar Build do Vite / TypeScript
+        run: npm run build
+
+  # ========================================================
+  # ETAPA 2: Continuous Deployment (CD) - Containerização Docker
+  # ========================================================
+  docker-build:
+    name: Containerização Docker (CD)
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout do código
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar o Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 3. Testar Build da Imagem Docker
+        run: |
+          docker build -t tech-challenge-frontend:latest .
+          echo "✅ Imagem Docker do Front-End gerada com sucesso!"
