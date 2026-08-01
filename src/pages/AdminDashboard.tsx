@@ -18,9 +18,10 @@ interface UserItem {
 }
 
 const Container = styled.main`
-  max-width: 1000px;
+  max-width: 1050px;
   margin: 3rem auto;
-  padding: 0 1.5rem;
+  padding: 0 1.5rem 4rem;
+  color: #f8fafc;
 `;
 
 const AdminHeader = styled.div`
@@ -29,6 +30,17 @@ const AdminHeader = styled.div`
   align-items: center;
   margin-bottom: 1.5rem;
 
+  h1 {
+    font-size: 1.75rem;
+    color: #ffffff !important;
+    font-weight: 800;
+  }
+
+  p {
+    color: #94a3b8 !important;
+    font-size: 0.95rem;
+  }
+
   @media (max-width: 640px) {
     flex-direction: column;
     align-items: flex-start;
@@ -36,13 +48,22 @@ const AdminHeader = styled.div`
   }
 `;
 
+/* 🔴 Card Glassmorphism Escuro com Texto de Alta Visibilidade */
 const CardForm = styled.div`
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 1.5rem;
+  background: rgba(24, 24, 27, 0.85);
+  backdrop-filter: blur(16px);
+  border-radius: 12px;
+  padding: 1.75rem;
   margin-bottom: 2rem;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+
+  h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1.25rem;
+    color: #ffffff !important;
+    font-weight: 700;
+  }
 `;
 
 const FormRow = styled.form`
@@ -59,33 +80,48 @@ const FormRow = styled.form`
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.5rem;
 
     label {
       font-size: 0.85rem;
       font-weight: 600;
-      color: #334155;
+      color: #e2e8f0 !important;
     }
 
     input, select {
-      padding: 0.65rem 0.85rem;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
+      padding: 0.7rem 0.9rem;
+      background: rgba(10, 15, 26, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
       font-size: 0.95rem;
+      color: #ffffff !important;
       outline: none;
+      transition: all 0.2s ease;
+
+      &::placeholder {
+        color: #64748b;
+      }
 
       &:focus {
         border-color: #ED145B;
+        box-shadow: 0 0 12px rgba(237, 20, 91, 0.3);
+      }
+
+      option {
+        background: #18181b;
+        color: #ffffff;
       }
     }
   }
 `;
 
+/* 🔴 Tabela Dark com Contraste Total nos E-mails e Textos */
 const TableCard = styled.div`
-  background: #ffffff;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  background: rgba(24, 24, 27, 0.85);
+  backdrop-filter: blur(16px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   overflow-x: auto;
   margin-bottom: 2rem;
 `;
@@ -96,62 +132,79 @@ const Table = styled.table`
   text-align: left;
 
   th, td {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid #e2e8f0;
+    padding: 1.1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   th {
-    background: #f8fafc;
+    background: rgba(237, 20, 91, 0.12);
     font-size: 0.85rem;
     text-transform: uppercase;
-    color: #64748b;
+    color: #ff6b9d !important;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  /* 🔴 Força a visibilidade perfeita de todos os e-mails e títulos */
+  td {
+    color: #f8fafc !important;
+    font-size: 0.95rem;
+
+    strong, span, p {
+      color: #ffffff !important;
+    }
   }
 `;
 
 const ActionBtn = styled.button<{ $danger?: boolean }>`
-  background: ${(props) => (props.$danger ? '#fee2e2' : '#e0f2fe')};
-  color: ${(props) => (props.$danger ? '#dc2626' : '#0284c7')};
-  padding: 0.4rem 0.8rem;
+  background: ${(props) => (props.$danger ? 'rgba(220, 38, 38, 0.2)' : 'rgba(2, 132, 199, 0.2)')};
+  color: ${(props) => (props.$danger ? '#fca5a5' : '#7dd3fc')} !important;
+  border: 1px solid ${(props) => (props.$danger ? 'rgba(220, 38, 38, 0.4)' : 'rgba(2, 132, 199, 0.4)')};
+  padding: 0.45rem 0.85rem;
   border-radius: 6px;
-  border: none;
   font-weight: 600;
   font-size: 0.825rem;
   margin-right: 0.5rem;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: all 0.2s ease;
 
   &:hover {
-    opacity: 0.8;
+    background: ${(props) => (props.$danger ? '#dc2626' : '#0284c7')};
+    color: #ffffff !important;
   }
 `;
 
 const PrimaryBtn = styled.button`
   background: #ED145B;
-  color: #fff;
+  color: #fff !important;
   padding: 0.65rem 1.25rem;
-  border-radius: 6px;
+  border-radius: 8px;
   border: none;
   font-weight: 700;
   cursor: pointer;
-  height: 42px;
+  height: 44px;
+  box-shadow: 0 4px 15px rgba(237, 20, 91, 0.3);
+  transition: all 0.2s ease;
 
   &:hover {
     background: #c40e48;
+    transform: translateY(-1px);
   }
 `;
 
 const RoleBadge = styled.span<{ $role: string }>`
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-weight: 800;
   font-size: 0.75rem;
+  letter-spacing: 0.5px;
   background: ${(props) => {
     const r = (props.$role || '').toUpperCase();
     if (r === 'SUPERADMIN') return '#dc2626';
     if (r === 'TEACHER') return '#0284c7';
-    return '#6b7280';
+    return '#475569';
   }};
-  color: #fff;
+  color: #fff !important;
 `;
 
 export const AdminDashboard: React.FC = () => {
@@ -260,7 +313,7 @@ export const AdminDashboard: React.FC = () => {
       <Header />
       <Container>
         {message && (
-          <div style={{ padding: '0.75rem 1rem', background: '#fef3c7', color: '#92400e', borderRadius: '6px', marginBottom: '1.5rem', borderLeft: '4px solid #f59e0b' }}>
+          <div style={{ padding: '0.85rem 1.25rem', background: 'rgba(245, 158, 11, 0.15)', color: '#fef08a', borderRadius: '8px', marginBottom: '1.75rem', borderLeft: '4px solid #f59e0b', fontSize: '0.925rem' }}>
             {message}
           </div>
         )}
@@ -269,17 +322,17 @@ export const AdminDashboard: React.FC = () => {
             SESSÃO SUPERADMIN: CADASTRAR E GERENCIAR USUÁRIOS
            ============================================================================== */}
         {isSuperAdmin && (
-          <section style={{ marginBottom: '3rem' }}>
+          <section style={{ marginBottom: '3.5rem' }}>
             <AdminHeader>
               <div>
-                <h1 style={{ fontSize: '1.75rem', color: '#1a1a1a' }}>Gestão de Usuários</h1>
-                <p style={{ color: '#666' }}>Cadastre novos usuários e defina papéis no sistema</p>
+                <h1>Gestão de Usuários</h1>
+                <p>Cadastre novos usuários e defina papéis no sistema</p>
               </div>
             </AdminHeader>
 
             {/* FORMULÁRIO DE NOVO CADASTRO */}
             <CardForm>
-              <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: '#0f172a' }}>➕ Cadastrar Novo Usuário</h3>
+              <h3>➕ Cadastrar Novo Usuário</h3>
               <FormRow onSubmit={handleCreateUser}>
                 <div className="field">
                   <label>E-mail do Usuário:</label>
@@ -317,7 +370,7 @@ export const AdminDashboard: React.FC = () => {
             {/* TABELA DE USUÁRIOS */}
             <TableCard>
               {loadingUsers ? (
-                <p style={{ padding: '1.5rem', textAlign: 'center' }}>Carregando usuários...</p>
+                <p style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>Carregando usuários...</p>
               ) : (
                 <Table>
                   <thead>
@@ -364,11 +417,11 @@ export const AdminDashboard: React.FC = () => {
         <section>
           <AdminHeader>
             <div>
-              <h1 style={{ fontSize: '1.75rem', color: '#1a1a1a' }}>Painel de Gestão Docente</h1>
-              <p style={{ color: '#666' }}>Gerencie suas postagens acadêmicas criadas</p>
+              <h1>Painel de Gestão Docente</h1>
+              <p>Gerencie suas postagens acadêmicas criadas</p>
             </div>
             <Link to="/posts/new">
-              <button style={{ background: '#10b981', color: '#fff', padding: '0.75rem 1.25rem', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer' }}>
+              <button style={{ background: '#10b981', color: '#fff', padding: '0.75rem 1.25rem', borderRadius: '8px', border: 'none', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }}>
                 + Nova Postagem
               </button>
             </Link>

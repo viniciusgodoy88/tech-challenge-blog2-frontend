@@ -6,10 +6,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { Header } from '../components/Header';
 
 interface Comment {
-  id?: string;
+  id: number | string;
   author?: string | { name?: string; email?: string };
   content?: string;
   text?: string;
+  parentId?: number | string | null;
 }
 
 interface PostDetailData {
@@ -74,24 +75,57 @@ const CommentSection = styled.section`
   }
 `;
 
-const CommentItem = styled.div`
+const CommentCard = styled.div<{ isReply?: boolean }>`
   background: rgba(255, 255, 255, 0.04);
-  border-left: 3px solid #ED145B;
+  border-left: 3px solid ${(props) => (props.isReply ? '#38bdf8' : '#ED145B')};
   padding: 1rem 1.25rem;
   border-radius: 6px;
   margin-bottom: 1rem;
+  margin-left: ${(props) => (props.isReply ? '2.5rem' : '0')};
+`;
+
+const CommentHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
 
   strong {
     color: #ff6b9d;
-    display: block;
-    margin-bottom: 0.35rem;
     font-size: 0.875rem;
   }
+`;
 
-  p {
-    color: #e2e8f0;
-    font-size: 0.95rem;
-    line-height: 1.5;
+const CommentBody = styled.p`
+  color: #e2e8f0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  gap: 0.75rem;
+
+  button {
+    background: transparent;
+    border: none;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  .reply-btn {
+    color: #38bdf8;
+  }
+
+  .delete-btn {
+    color: #ef4444;
   }
 `;
 
@@ -150,8 +184,12 @@ export const PostDetail: React.FC = () => {
 
   const [post, setPost] = useState<PostDetailData | null>(null);
   const [newComment, setNewComment] = useState('');
+  const [replyingTo, setReplyingTo] = useState<number | string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Identifica perfil com privilégios de exclusão
+  const isTeacherOrAdmin = user?.role === 'TEACHER' || user?.role === 'SUPERADMIN';
 
   const loadPost = async () => {
     if (!id) return;
@@ -159,14 +197,13 @@ export const PostDetail: React.FC = () => {
       const res = await api.get<PostDetailData>(`/posts/${id}`);
       let commentsList = res.data.comments || [];
 
-      // Tenta buscar comentários por rota dedicada caso o post venha sem array
       try {
         const commentsRes = await api.get<Comment[]>(`/posts/${id}/comments`);
         if (Array.isArray(commentsRes.data)) {
           commentsList = commentsRes.data;
         }
       } catch {
-        // Mantém commentsList extraído do post
+        // Mantém comentários extraídos da postagem
       }
 
       setPost({ ...res.data, comments: commentsList });
@@ -188,46 +225,67 @@ export const PostDetail: React.FC = () => {
     setSubmitting(true);
 
     try {
+      let rawToken =
+        localStorage.getItem('token') ||
+        localStorage.getItem('@Blog:token') ||
+        localStorage.getItem('@App:token') ||
+        '';
+
+      rawToken = rawToken.replace(/^"|"$/g, '').trim();
+      const tokenHeader = rawToken.startsWith('Bearer ') ? rawToken : `Bearer ${rawToken}`;
+
+      const config = {
+        headers: {
+          Authorization: tokenHeader,
+        },
+      };
+
       const payload = {
         content: newComment,
         text: newComment,
         postId: id,
+        parentId: replyingTo || undefined,
         author: user?.email ? user.email.split('@')[0] : 'Docente/Aluno',
       };
 
-      let createdComment: Comment;
-
-      try {
-        const res = await api.post<Comment>(`/posts/${id}/comments`, payload);
-        createdComment = res.data;
-      } catch {
-        const resAlt = await api.post<Comment>('/comments', payload);
-        createdComment = resAlt.data;
-      }
-
-      // Atualização imediata em tela do novo comentário
-      setPost((prev) =>
-        prev
-          ? {
-              ...prev,
-              comments: [
-                ...(prev.comments || []),
-                createdComment || {
-                  id: String(Date.now()),
-                  author: user?.email ? user.email.split('@')[0] : 'Docente/Aluno',
-                  content: newComment,
-                },
-              ],
-            }
-          : prev
-      );
+      await api.post<Comment>(`/posts/${id}/comments`, payload, config);
 
       setNewComment('');
+      setReplyingTo(null);
+      await loadPost();
     } catch (err: any) {
       console.error('Erro ao enviar comentário:', err);
-      setError('Não foi possível enviar o comentário. Verifique se está autenticado.');
+      const backendError =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        'Não foi possível enviar o comentário.';
+
+      setError(backendError);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: number | string) => {
+    if (!window.confirm('Tem certeza que deseja remover este comentário?')) return;
+
+    try {
+      let rawToken =
+        localStorage.getItem('token') ||
+        localStorage.getItem('@Blog:token') ||
+        localStorage.getItem('@App:token') ||
+        '';
+
+      rawToken = rawToken.replace(/^"|"$/g, '').trim();
+      const tokenHeader = rawToken.startsWith('Bearer ') ? rawToken : `Bearer ${rawToken}`;
+
+      await api.delete(`/posts/comments/${commentId}`, {
+        headers: { Authorization: tokenHeader },
+      });
+
+      await loadPost();
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Erro ao remover comentário.');
     }
   };
 
@@ -240,6 +298,11 @@ export const PostDetail: React.FC = () => {
         </Wrapper>
       </>
     );
+
+  // Organiza os comentários entre raízes e respostas
+  const rootComments = post.comments?.filter((c) => !c.parentId) || [];
+  const getReplies = (parentId: number | string) =>
+    post.comments?.filter((c) => String(c.parentId) === String(parentId)) || [];
 
   return (
     <>
@@ -286,19 +349,69 @@ export const PostDetail: React.FC = () => {
             )}
 
             <div style={{ margin: '1.5rem 0' }}>
-              {post.comments && post.comments.length > 0 ? (
-                post.comments.map((c, index) => {
-                  const commentText = c.content || c.text || 'Sem texto';
+              {rootComments.length > 0 ? (
+                rootComments.map((c) => {
+                  const replies = getReplies(c.id);
                   const commentAuthor =
                     typeof c.author === 'object'
                       ? c.author?.name || c.author?.email
                       : c.author || 'Membro FIAP';
 
                   return (
-                    <CommentItem key={c.id || index}>
-                      <strong>👤 {commentAuthor} escreveu:</strong>
-                      <p>{commentText}</p>
-                    </CommentItem>
+                    <React.Fragment key={c.id}>
+                      {/* Comentário Principal */}
+                      <CommentCard>
+                        <CommentHeader>
+                          <strong>👤 {commentAuthor} escreveu:</strong>
+                          <ActionButtons>
+                            {signed && (
+                              <button
+                                className="reply-btn"
+                                onClick={() => setReplyingTo(c.id)}
+                              >
+                                ↩️ Responder
+                              </button>
+                            )}
+                            {isTeacherOrAdmin && (
+                              <button
+                                className="delete-btn"
+                                onClick={() => handleDeleteComment(c.id)}
+                              >
+                                🗑️ Excluir
+                              </button>
+                            )}
+                          </ActionButtons>
+                        </CommentHeader>
+                        <CommentBody>{c.content || c.text}</CommentBody>
+                      </CommentCard>
+
+                      {/* Respostas Aninhadas abaixo do Comentário do Aluno */}
+                      {replies.map((reply) => {
+                        const replyAuthor =
+                          typeof reply.author === 'object'
+                            ? reply.author?.name || reply.author?.email
+                            : reply.author || 'Membro FIAP';
+
+                        return (
+                          <CommentCard key={reply.id} isReply>
+                            <CommentHeader>
+                              <strong>💬 Resposta de {replyAuthor}:</strong>
+                              <ActionButtons>
+                                {isTeacherOrAdmin && (
+                                  <button
+                                    className="delete-btn"
+                                    onClick={() => handleDeleteComment(reply.id)}
+                                  >
+                                    🗑️ Excluir
+                                  </button>
+                                )}
+                              </ActionButtons>
+                            </CommentHeader>
+                            <CommentBody>{reply.content || reply.text}</CommentBody>
+                          </CommentCard>
+                        );
+                      })}
+                    </React.Fragment>
                   );
                 })
               ) : (
@@ -310,15 +423,50 @@ export const PostDetail: React.FC = () => {
 
             {signed ? (
               <form onSubmit={handleAddComment}>
+                {replyingTo && (
+                  <div
+                    style={{
+                      color: '#38bdf8',
+                      marginBottom: '0.5rem',
+                      fontSize: '0.875rem',
+                      display: 'flex',
+                      justify: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <span>↩️ Respondendo ao comentário #{replyingTo}</span>
+                    <button
+                      type="button"
+                      onClick={() => setReplyingTo(null)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#ef4444',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                      }}
+                    >
+                      Cancelar resposta
+                    </button>
+                  </div>
+                )}
                 <Textarea
                   rows={4}
-                  placeholder="Deixe uma colaboração ou dúvida acadêmica..."
+                  placeholder={
+                    replyingTo
+                      ? 'Escreva sua resposta para o aluno...'
+                      : 'Deixe uma colaboração ou dúvida acadêmica...'
+                  }
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   required
                 />
                 <SubmitBtn type="submit" disabled={submitting || !newComment.trim()}>
-                  {submitting ? 'Enviando...' : 'Enviar Comentário'}
+                  {submitting
+                    ? 'Enviando...'
+                    : replyingTo
+                    ? 'Enviar Resposta'
+                    : 'Enviar Comentário'}
                 </SubmitBtn>
               </form>
             ) : (
