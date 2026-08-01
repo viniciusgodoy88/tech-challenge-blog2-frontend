@@ -430,7 +430,7 @@ export const PostDetail: React.FC = () => {
                       marginBottom: '0.5rem',
                       fontSize: '0.875rem',
                       display: 'flex',
-                      justify: 'space-between',
+                      justifyContent: 'space-between',
                       alignItems: 'center',
                     }}
                   >
