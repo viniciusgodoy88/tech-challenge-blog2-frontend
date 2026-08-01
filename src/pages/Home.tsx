@@ -7,90 +7,137 @@ import { Header } from '../components/Header';
 interface Post {
   id: string;
   title: string;
-  author: string;
-  summary: string;
+  content: string;
+  summary?: string;
+  author?: string;
 }
 
+// Container principal com Imagem de Fundo Tecnológica + Overlay Escuro
+const MainWrapper = styled.div`
+  min-height: 100vh;
+  background: linear-gradient(
+      rgba(13, 13, 17, 0.88), 
+      rgba(13, 13, 17, 0.95)
+    ),
+    url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop') 
+    center/cover no-repeat fixed;
+`;
+
 const Hero = styled.section`
-  background: linear-gradient(135deg, var(--fiap-black) 0%, var(--fiap-dark-gray) 100%);
-  color: #fff;
-  padding: 3.5rem 1.5rem;
+  color: #ffffff;
+  padding: 4rem 1.5rem 3rem;
   text-align: center;
-  border-bottom: 2px solid var(--fiap-pink);
+  border-bottom: 1px solid rgba(237, 20, 91, 0.3);
+  position: relative;
 `;
 
 const HeroTitle = styled.h1`
-  font-size: 2.5rem;
+  font-size: 2.75rem;
   font-weight: 800;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.5px;
 
   span {
-    color: var(--fiap-pink);
+    background: linear-gradient(135deg, #ED145B 0%, #ff6b9d 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 `;
 
 const HeroSubtitle = styled.p`
-  color: #a1a1aa;
-  font-size: 1.1rem;
-  max-width: 650px;
-  margin: 0 auto 1.5rem auto;
+  color: #94a3b8;
+  font-size: 1.125rem;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
 `;
 
 const Container = styled.main`
   max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1.5rem;
+  margin: 2.5rem auto;
+  padding: 0 1.5rem 4rem;
 `;
 
 const SearchInput = styled.input`
   width: 100%;
-  max-width: 600px;
+  max-width: 650px;
   display: block;
   margin: 0 auto 2.5rem auto;
-  padding: 1rem 1.25rem;
-  border-radius: var(--radius);
-  border: 2px solid var(--border);
+  padding: 1.1rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(24, 24, 27, 0.85);
+  backdrop-filter: blur(12px);
+  color: #ffffff;
   font-size: 1rem;
-  box-shadow: var(--shadow);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   outline: none;
+  transition: all 0.3s ease;
+
+  &::placeholder {
+    color: #64748b;
+  }
 
   &:focus {
-    border-color: var(--fiap-pink);
+    border-color: #ED145B;
+    box-shadow: 0 0 20px rgba(237, 20, 91, 0.3);
+    background: rgba(24, 24, 27, 0.95);
   }
 `;
 
 const PostGrid = styled.div`
   display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
 `;
 
 const Card = styled.article`
-  background: var(--fiap-card-bg);
-  border-radius: var(--radius);
-  border-left: 4px solid var(--fiap-pink);
-  padding: 1.5rem;
-  box-shadow: var(--shadow);
+  background: rgba(24, 24, 27, 0.82);
+  backdrop-filter: blur(16px);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 4px solid #ED145B;
+  padding: 1.75rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: transform 0.2s;
+  transition: all 0.3s ease;
 
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(237, 20, 91, 0.2);
+    border-color: rgba(237, 20, 91, 0.5);
   }
 `;
 
 const AuthorBadge = styled.span`
-  background: rgba(237, 20, 91, 0.1);
-  color: var(--fiap-pink);
+  background: rgba(237, 20, 91, 0.15);
+  color: #ff6b9d;
   font-weight: 700;
   font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
   display: inline-block;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.85rem;
+  border: 1px solid rgba(237, 20, 91, 0.3);
   width: fit-content;
+`;
+
+const ReadMoreLink = styled(Link)`
+  color: #ED145B;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 1.25rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    gap: 10px;
+    color: #ff6b9d;
+  }
 `;
 
 export const Home: React.FC = () => {
@@ -104,19 +151,21 @@ export const Home: React.FC = () => {
       .catch(() => setPosts([]));
   }, []);
 
-  const filteredPosts = posts.filter(
-    (p) =>
-      p.title.toLowerCase().includes(search.toLowerCase()) ||
-      p.author.toLowerCase().includes(search.toLowerCase()) ||
-      p.summary.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredPosts = posts.filter((p) => {
+    const term = search.toLowerCase();
+    const titleMatch = (p.title || '').toLowerCase().includes(term);
+    const authorMatch = (p.author || 'Docente FIAP').toLowerCase().includes(term);
+    const contentMatch = (p.content || p.summary || '').toLowerCase().includes(term);
+
+    return titleMatch || authorMatch || contentMatch;
+  });
 
   return (
-    <>
+    <MainWrapper>
       <Header />
       <Hero>
         <HeroTitle>
-          Blog <span>Tech Challenge</span>
+          Blog <span>Blogging - Tech Challenge 3 - FSDT</span>
         </HeroTitle>
         <HeroSubtitle>
           Plataforma de artigos e troca de conhecimento da Pós Tech FIAP em Full Stack Development
@@ -131,30 +180,35 @@ export const Home: React.FC = () => {
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        <p style={{ marginBottom: '1.5rem', color: 'var(--text-muted)' }}>
-          Exibindo <strong>{filteredPosts.length}</strong> artigo(s)
+        <p style={{ marginBottom: '1.5rem', color: '#94a3b8', fontSize: '0.95rem' }}>
+          Exibindo <strong style={{ color: '#ffffff' }}>{filteredPosts.length}</strong> artigo(s)
         </p>
 
         <PostGrid>
-          {filteredPosts.map((post) => (
-            <Card key={post.id}>
-              <div>
-                <AuthorBadge>👨‍🏫 {post.author}</AuthorBadge>
-                <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{post.title}</h2>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.925rem', marginBottom: '1.25rem' }}>
-                  {post.summary}
-                </p>
-              </div>
-              <Link
-                to={`/posts/${post.id}`}
-                style={{ color: 'var(--fiap-pink)', fontWeight: 700, fontSize: '0.9rem' }}
-              >
-                Ler artigo completo →
-              </Link>
-            </Card>
-          ))}
+          {filteredPosts.map((post) => {
+            const displaySummary =
+              post.summary || (post.content ? `${post.content.slice(0, 120)}...` : 'Sem conteúdo disponível.');
+            const displayAuthor = post.author || 'Docente FIAP';
+
+            return (
+              <Card key={post.id}>
+                <div>
+                  <AuthorBadge>👨‍🏫 {displayAuthor}</AuthorBadge>
+                  <h2 style={{ fontSize: '1.25rem', marginBottom: '0.65rem', color: '#f8fafc', fontWeight: 700 }}>
+                    {post.title}
+                  </h2>
+                  <p style={{ color: '#94a3b8', fontSize: '0.925rem', lineHeight: '1.6' }}>
+                    {displaySummary}
+                  </p>
+                </div>
+                <ReadMoreLink to={`/posts/${post.id}`}>
+                  Ler artigo completo →
+                </ReadMoreLink>
+              </Card>
+            );
+          })}
         </PostGrid>
       </Container>
-    </>
+    </MainWrapper>
   );
 };

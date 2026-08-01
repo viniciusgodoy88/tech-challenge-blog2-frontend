@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '../services/api';
 
-interface User {
+// 🔴 Atualizado para incluir 'SUPERADMIN' além de TEACHER e STUDENT
+export interface User {
   id: string;
-  name: string;
+  name?: string;
   email: string;
-  role: 'TEACHER' | 'STUDENT';
+  role: 'SUPERADMIN' | 'TEACHER' | 'STUDENT' | string;
 }
 
 interface AuthContextData {
@@ -24,18 +25,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     function loadStorageData() {
-      const storagedUser = localStorage.getItem('@Blog:user');
-      const storagedToken = localStorage.getItem('@Blog:token');
+      // Suporte tanto para as chaves com prefixo quanto sem prefixo para evitar incompatibilidade
+      const storagedUser = localStorage.getItem('@Blog:user') || localStorage.getItem('user');
+      const storagedToken = localStorage.getItem('@Blog:token') || localStorage.getItem('token');
 
       if (storagedToken && storagedUser) {
         try {
-          setUser(JSON.parse(storagedUser));
-          api.defaults.headers.Authorization = `Bearer ${storagedToken}`;
+          const parsedUser = JSON.parse(storagedUser);
+          setUser(parsedUser);
+          api.defaults.headers.common['Authorization'] = `Bearer ${storagedToken}`;
         } catch (error) {
           console.error('Erro ao ler dados do localStorage:', error);
-          localStorage.removeItem('@Blog:user');
-          localStorage.removeItem('@Blog:token');
-          setUser(null);
+          clearStorage();
         }
       }
       setLoading(false);
@@ -44,20 +45,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loadStorageData();
   }, []);
 
+  const clearStorage = () => {
+    localStorage.removeItem('@Blog:token');
+    localStorage.removeItem('@Blog:user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    delete api.defaults.headers.common['Authorization'];
+    setUser(null);
+  };
+
   const login = (token: string, userData: User) => {
+    // Garante gravação em ambos os padrões para compatibilidade total com interceptors
     localStorage.setItem('@Blog:token', token);
     localStorage.setItem('@Blog:user', JSON.stringify(userData));
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
 
-    api.defaults.headers.Authorization = `Bearer ${token}`;
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     setUser(userData);
   };
 
   const logout = () => {
-    localStorage.removeItem('@Blog:token');
-    localStorage.removeItem('@Blog:user');
-
-    delete api.defaults.headers.Authorization;
-    setUser(null);
+    clearStorage();
   };
 
   return (
@@ -75,7 +84,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-// 🔴 ESTA LINHA É A QUE FALTAVA PARA RESOLVER O ERRO DO SEU PRINT:
 export function useAuth(): AuthContextData {
   const context = useContext(AuthContext);
 

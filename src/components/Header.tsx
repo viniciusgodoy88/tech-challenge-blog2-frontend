@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
+import fiapLogo from '../assets/fiap-logo.png';
 
 const Nav = styled.header`
   background: #0d0d0d;
@@ -30,10 +31,13 @@ const LogoLink = styled(Link)`
   display: flex;
   align-items: center;
   gap: 1rem;
+  text-decoration: none;
+  border: none !important;
 
   img {
     height: 42px;
     object-fit: contain;
+    border: none !important;
   }
 
   .badge-sub {
@@ -42,8 +46,9 @@ const LogoLink = styled(Link)`
     font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    border-left: 2px solid #ED145B;
-    padding-left: 0.75rem;
+    border: none !important;
+    border-left: none !important;
+    padding-left: 0 !important;
 
     span {
       color: #ED145B;
@@ -65,6 +70,7 @@ const Button = styled.button<{ $variant?: 'outline' | 'primary' | 'danger' }>`
   font-weight: 600;
   font-size: 0.875rem;
   transition: all 0.2s ease;
+  cursor: pointer;
   background: ${(props) =>
     props.$variant === 'primary'
       ? '#ED145B'
@@ -90,13 +96,18 @@ export const Header: React.FC = () => {
   const { signed, user, logout } = useAuth();
   const navigate = useNavigate();
 
+  const isAuthorized = user && (user.role === 'TEACHER' || user.role === 'SUPERADMIN');
+
   return (
     <Nav>
       <NavContainer>
         <LogoLink to="/">
           <img
-            src="https://s3.sa-east-1.amazonaws.com/remotar-assets-prod/company-logo/d8f07be8-a006-4076-a05e-eeed0ddcfc6f.png"
-            alt="Logo FIAP"
+            src={fiapLogo}
+            alt="FIAP"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/fiap-logo.png';
+            }}
           />
           <div className="badge-sub">
             PÓS TECH
@@ -108,14 +119,20 @@ export const Header: React.FC = () => {
           <Link to="/">
             <Button $variant="outline">Início</Button>
           </Link>
+
           {signed ? (
             <>
-              <Link to="/admin">
-                <Button $variant="outline">Painel Admin</Button>
-              </Link>
-              <Link to="/posts/new">
-                <Button $variant="primary">+ Criar Post</Button>
-              </Link>
+              {isAuthorized && (
+                <>
+                  <Link to="/admin">
+                    <Button $variant="outline">Intranet</Button>
+                  </Link>
+                  <Link to="/posts/new">
+                    <Button $variant="primary">+ Criar Post</Button>
+                  </Link>
+                </>
+              )}
+
               <Button
                 $variant="danger"
                 onClick={() => {
@@ -123,12 +140,12 @@ export const Header: React.FC = () => {
                   navigate('/');
                 }}
               >
-                Sair ({user?.name || 'Docente'})
+                Sair ({user?.email ? user.email.split('@')[0] : 'Usuário'})
               </Button>
             </>
           ) : (
             <Link to="/login">
-              <Button $variant="primary">Área do Professor</Button>
+              <Button $variant="primary">Intranet</Button>
             </Link>
           )}
         </NavActions>
