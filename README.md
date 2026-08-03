@@ -1,75 +1,66 @@
-# 📝 Tech Challenge - Blog Application (Frontend)
+# 💻 Tech Challenge - Blog Frontend
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Node.js](https://img.shields.io/badge/Node.js-18%2B-brightgreen.svg)
-![React](https://img.shields.io/badge/React-18.x-61dafb.svg)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)
-![Docker](https://img.shields.io/badge/Docker-Supported-2496ed.svg)
-
-Aplicação web desenvolvida como parte do **Tech Challenge (Fase 2)**. Trata-se de uma interface interativa para gerenciamento e publicação de artigos em um blog, consumindo a API Backend RESTful do projeto.
+[![React](https://img.shields.io/badge/React-18.x-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5.x-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
 ---
 
-## 📌 Índice
+## 📌 Sobre o Projeto
 
-- [Visão Geral](#-visão-geral)
-- [Funcionalidades](#-funcionalidades)
-- [Tech Stack](#-tech-stack)
-- [Pré-requisitos](#-pré-requisitos)
-- [Instalação e Execução Local](#-instalação-e-execução-local)
-  - [Opção 1: Via Node.js / npm](#opção-1-via-nodejs--npm)
-  - [Opção 2: Via Docker / Docker Compose](#opção-2-via-docker--docker-compose)
-- [Variáveis de Ambiente](#-variáveis-de-ambiente)
-- [Scripts Disponíveis](#-scripts-disponíveis)
-- [Estrutura do Projeto](#-estrutura-do-projeto)
-- [Integração com Backend](#-integração-com-backend)
-- [Contribuição e Autores](#-contribuição-e-autores)
+O **Tech Challenge Blog Frontend** é a interface web do sistema de gerenciamento de postagens e artigos desenvolvida como parte do projeto integrador **Tech Challenge (Fase 2)**.
+
+A aplicação foi construída visando oferecer uma experiência moderna, responsiva, acessível e performática para leitura, criação, edição e interação com artigos do blog, integrando-se via API RESTful com o backend [tech-challenge-blog2](https://github.com/viniciusgodoy88/tech-challenge-blog2).
 
 ---
 
-## 🚀 Visão Geral
+## 🛠️ Tecnologias e Ferramentas
 
-O **tech-challenge-blog2-frontend** foi construído com foco em **desempenho**, **usabilidade** e **clean code**. A interface permite que usuários visualizem posts, leiam artigos completos, criem novos conteúdos e gerenciem publicações existentes.
+O projeto utiliza as seguintes tecnologias no ecossistema Frontend:
 
----
-
-## ✨ Funcionalidades
-
-- 📰 **Feed de Notícias / Posts**: Listagem paginada de artigos publicados.
-- 🔍 **Busca e Filtros**: Pesquisa de posts por título, categoria ou autor.
-- 📝 **Criação e Edição**: Formulário para redigir e atualizar postagens.
-- 👤 **Autenticação de Usuário**: Login, cadastro e gestão de tokens JWT.
-- 📱 **Design Responsivo**: Layout otimizado para desktop, tablets e smartphones.
+- **[React](https://reactjs.org/)** — Biblioteca principal para construção da interface baseada em componentes.
+- **[TypeScript](https://www.typescriptlang.org/)** — Adição de tipagem estática para maior segurança e produtividade no desenvolvimento.
+- **[Vite](https://vitejs.dev/)** — Build tool rápida e leve para ambiente de desenvolvimento e empacotamento de produção.
+- **[Tailwind CSS](https://tailwindcss.com/)** — Framework utilitário de CSS para estilização ágil e responsiva.
+- **[React Router DOM](https://reactrouter.com/)** — Gerenciamento de rotas e navegação da SPA (Single Page Application).
+- **[Axios](https://axios-http.com/)** — Cliente HTTP para integração e consumo da API REST Backend.
+- **[Lucide React / React Icons](https://lucide.dev/)** — Biblioteca de ícones modernos para a interface.
 
 ---
 
-## 🛠️ Tech Stack
+## ⚙️ Funcionalidades
 
-- **Linguagem**: TypeScript
-- **Biblioteca Principal**: React (Vite / Next.js ou Create React App)
-- **Estilização**: Tailwind CSS / Styled Components / CSS Modules
-- **Gerenciamento de Estado**: React Context API / Redux Toolkit / React Query (TanStack Query)
-- **Requisições HTTP**: Axios
-- **Conteinerização**: Docker & Nginx (para deploy/servir os estáticos)
+### 📖 Para Leitores
+- [x] **Feed de Publicações:** Listagem paginada e ordenada dos artigos mais recentes.
+- [x] **Visualização de Artigo:** Leitura detalhada com suporte a formato rico/Markdown.
+- [x] **Busca e Filtros:** Pesquisa por palavras-chave, categorias e tags.
+- [x] **Área de Comentários:** Visualização de interações dos leitores no final do artigo.
 
----
-
-## 📋 Pré-requisitos
-
-Antes de iniciar, certifique-se de ter instalado em sua máquina:
-
-- [Node.js](https://nodejs.org/) (Versão `>= 18.0.0`)
-- [npm](https://www.npmjs.com/) ou [yarn](https://yarnpkg.com/)
-- [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/) *(opcional, caso queira rodar via containers)*
-- API Backend em execução (verifique o repositório `tech-challenge-blog2-backend`)
+### ✍️ Para Autores / Administradores
+- [x] **Autenticação:** Login seguro de usuários (JWT Token).
+- [x] **Criação e Edição:** Editor visual/Markdown para elaboração de novas postagens.
+- [x] **Gestão de Postagens:** Painel administrativo (Dashboard) para criar, atualizar e remover posts (CRUD).
+- [x] **Gestão de Comentários:** Moderação e resposta aos comentários.
 
 ---
 
-## 🔧 Instalação e Execução Local
+## 📁 Estrutura do Projeto
 
-### Opção 1: Via Node.js / npm
-
-1. **Clone o repositório:**
-   ```bash
-   git clone [https://github.com/viniciusgodoy88/tech-challenge-blog2-frontend.git](https://github.com/viniciusgodoy88/tech-challenge-blog2-frontend.git)
-   cd tech-challenge-blog2-frontend
+```text
+tech-challenge-blog2-frontend/
+├── public/                 # Arquivos estáticos (favicon, imagens públicas)
+├── src/
+│   ├── assets/             # Imagens, ícones e fontes locais
+│   ├── components/         # Componentes reutilizáveis de UI
+│   │   ├── Header/
+│   │   ├── Footer/
+│   │   ├── PostCard/
+│   │   ├── Button/
+│   │   └── Input/
+│   ├── contexts/           # React Contexts (ex: AuthContext, ThemeContext)
+│   ├── hooks/              # Custom Hooks React (ex: useAuth, useFetch)
+│   ├── pages/              # Páginas da aplicação (Home, Post, Login, Dashboard)
+│   ├── services/           # Configuração de clientes HTTP e endpoints (Axios)
+│   ├── styles/             # Arquivos de estil
