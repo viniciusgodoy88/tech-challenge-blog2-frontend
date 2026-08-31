@@ -26,7 +26,7 @@ O projeto utiliza as seguintes tecnologias no ecossistema Frontend:
 - **[Tailwind CSS](https://tailwindcss.com/)** — Framework utilitário de CSS para estilização ágil e responsiva.
 - **[React Router DOM](https://reactrouter.com/)** — Gerenciamento de rotas e navegação da SPA (Single Page Application).
 - **[Axios](https://axios-http.com/)** — Cliente HTTP para integração e consumo da API REST Backend.
-- **[Lucide React / React Icons](https://lucide.dev/)** — Biblioteca de ícones modernos para a interface.
+- **[Lucide React](https://lucide.dev/)** — Biblioteca de ícones modernos para a interface.
 
 ---
 
@@ -53,14 +53,62 @@ tech-challenge-blog2-frontend/
 ├── public/                 # Arquivos estáticos (favicon, imagens públicas)
 ├── src/
 │   ├── assets/             # Imagens, ícones e fontes locais
-│   ├── components/         # Componentes reutilizáveis de UI
-│   │   ├── Header/
-│   │   ├── Footer/
-│   │   ├── PostCard/
-│   │   ├── Button/
-│   │   └── Input/
-│   ├── contexts/           # React Contexts (ex: AuthContext, ThemeContext)
-│   ├── hooks/              # Custom Hooks React (ex: useAuth, useFetch)
+│   ├── components/         # Componentes reutilizáveis de UI (Header, Footer, Buttons, etc.)
+│   ├── contexts/           # React Contexts (AuthContext, ThemeContext)
+│   ├── hooks/              # Custom Hooks React (useAuth, useFetch, etc.)
 │   ├── pages/              # Páginas da aplicação (Home, Post, Login, Dashboard)
-│   ├── services/           # Configuração de clientes HTTP e endpoints (Axios)
-│   ├── styles/             # Arquivos de estil
+│   ├── routes/             # Configuração de rotas públicas e privadas
+│   ├── services/           # Configuração do Axios e chamadas à API
+│   ├── styles/             # Arquivos de estilo global e Tailwind
+│   ├── types/              # Tipos e interfaces TypeScript globais
+│   ├── utils/              # Funções utilitárias e formatadores (datas, textos)
+│   ├── App.tsx             # Componente raiz com provedores
+│   └── main.tsx            # Ponto de entrada da aplicação
+├── .env.example            # Exemplo de variáveis de ambiente
+├── tailwind.config.js      # Configuração do Tailwind CSS
+├── tsconfig.json           # Configuração do TypeScript
+└── package.json            # Dependências e scripts do projeto
+
+🚀 Como Executar o Projeto
+Pré-requisitos
+
+Certifique-se de ter instalado em sua máquina:
+
+Node.js — versão 18 ou superior recomendada.
+Git
+Backend do projeto rodando localmente ou em ambiente de homologação.
+1. Clone o repositório
+git clone https://github.com/viniciusgodoy88/tech-challenge-blog2-frontend.git
+cd tech-challenge-blog2-frontend
+2. Instale as dependências
+
+Utilizando npm:
+
+npm install
+
+Ou utilizando Yarn:
+
+yarn install
+
+Ou utilizando pnpm:
+
+pnpm install
+3. Configure as variáveis de ambiente
+
+Crie um arquivo .env na raiz do projeto com base no arquivo .env.example:
+
+VITE_API_BASE_URL=http://localhost:8080/api
+4. Inicie o servidor de desenvolvimento
+
+Utilizando npm:
+
+npm run dev
+
+Ou utilizando Yarn:
+
+yarn dev
+5. Acesse no navegador
+
+O projeto estará disponível, por padrão, em:
+
+http://localhost:5173

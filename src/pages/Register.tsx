@@ -52,6 +52,7 @@ const FormGroup = styled.div`
     border-radius: 6px;
     font-size: 1rem;
     background: #fff;
+    color: #000;
 
     &:focus {
       outline: none;
