@@ -1,35 +1,68 @@
 import axios from 'axios';
 
+// ==============================================================================
+// INTERFACES E TIPOS DA API
+// ==============================================================================
+
+export interface Comment {
+  id: number | string;
+  author?: string | { name?: string; email?: string };
+  content?: string;
+  text?: string;
+  parentId?: number | string | null;
+  postId?: number | string;
+}
+
+export interface Post {
+  id: string | number;
+  title: string;
+  content: string;
+  author?: string;
+  summary?: string;
+  comments?: Comment[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreatePostDTO {
+  title: string;
+  content: string;
+  author?: string;
+  summary?: string;
+}
+
+export interface CreateCommentDTO {
+  content?: string;
+  text?: string;
+  postId?: string | number;
+  parentId?: string | number | null;
+  author?: string;
+}
+
+// ==============================================================================
+// INSTÂNCIA DO AXIOS E INTERCEPTORS
+// ==============================================================================
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  baseURL: (import.meta as any).env.VITE_API_URL || 'http://localhost:3000',
 });
 
-// Interceptor para injetar o Token JWT tratado
-api.interceptors.request.use((config) => {
-  // Busca em todas as chaves comuns
-  let token =
-    localStorage.getItem('token') ||
-    localStorage.getItem('@Blog:token') ||
-    localStorage.getItem('@App:token');
+// Interceptor para injetar o Token JWT tratado sem precisar de tipos complexos
+api.interceptors.request.use(
+  (config: any) => {
+    let token =
+      localStorage.getItem('token') ||
+      localStorage.getItem('@Blog:token') ||
+      localStorage.getItem('@App:token');
 
-  if (token) {
-    // Remove aspas duplas residuais caso o token tenha sido salvo com JSON.stringify
-    token = token.replace(/^"|"$/g, '').trim();
+    if (token) {
+      token = token.replace(/^"|"$/g, '').trim();
 
-    // Garante o formato 'Bearer <token>'
-    config.headers.Authorization = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-  }
-
-  return config;
-}, (error) => Promise.reject(error));
-
-// Interceptor de resposta
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401 && window.location.pathname !== '/login') {
-      console.warn('Sessão inválida ou expirada no backend.');
+      config.headers = config.headers || {};
+      config.headers.Authorization = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
     }
-    return Promise.reject(error);
-  }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
 );

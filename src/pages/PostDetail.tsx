@@ -188,7 +188,6 @@ export const PostDetail: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // Identifica perfil com privilégios de exclusão
   const isTeacherOrAdmin = user?.role === 'TEACHER' || user?.role === 'SUPERADMIN';
 
   const loadPost = async () => {
@@ -203,7 +202,7 @@ export const PostDetail: React.FC = () => {
           commentsList = commentsRes.data;
         }
       } catch {
-        // Mantém comentários extraídos da postagem
+        // Mantém comentários obtidos da postagem se a chamada secundária falhar
       }
 
       setPost({ ...res.data, comments: commentsList });
@@ -225,21 +224,6 @@ export const PostDetail: React.FC = () => {
     setSubmitting(true);
 
     try {
-      let rawToken =
-        localStorage.getItem('token') ||
-        localStorage.getItem('@Blog:token') ||
-        localStorage.getItem('@App:token') ||
-        '';
-
-      rawToken = rawToken.replace(/^"|"$/g, '').trim();
-      const tokenHeader = rawToken.startsWith('Bearer ') ? rawToken : `Bearer ${rawToken}`;
-
-      const config = {
-        headers: {
-          Authorization: tokenHeader,
-        },
-      };
-
       const payload = {
         content: newComment,
         text: newComment,
@@ -248,7 +232,8 @@ export const PostDetail: React.FC = () => {
         author: user?.email ? user.email.split('@')[0] : 'Docente/Aluno',
       };
 
-      await api.post<Comment>(`/posts/${id}/comments`, payload, config);
+      // O interceptor do axios insere o token Bearer automaticamente
+      await api.post<Comment>(`/posts/${id}/comments`, payload);
 
       setNewComment('');
       setReplyingTo(null);
@@ -270,22 +255,16 @@ export const PostDetail: React.FC = () => {
     if (!window.confirm('Tem certeza que deseja remover este comentário?')) return;
 
     try {
-      let rawToken =
-        localStorage.getItem('token') ||
-        localStorage.getItem('@Blog:token') ||
-        localStorage.getItem('@App:token') ||
-        '';
-
-      rawToken = rawToken.replace(/^"|"$/g, '').trim();
-      const tokenHeader = rawToken.startsWith('Bearer ') ? rawToken : `Bearer ${rawToken}`;
-
-      await api.delete(`/posts/comments/${commentId}`, {
-        headers: { Authorization: tokenHeader },
-      });
-
+      // O interceptor do axios insere o token Bearer automaticamente
+      await api.delete(`/posts/comments/${commentId}`);
       await loadPost();
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Erro ao remover comentário.');
+      const status = err.response?.status;
+      if (status === 403) {
+        alert('Apenas professores têm permissão para excluir comentários.');
+      } else {
+        alert(err.response?.data?.error || 'Erro ao remover comentário.');
+      }
     }
   };
 
@@ -299,7 +278,6 @@ export const PostDetail: React.FC = () => {
       </>
     );
 
-  // Organiza os comentários entre raízes e respostas
   const rootComments = post.comments?.filter((c) => !c.parentId) || [];
   const getReplies = (parentId: number | string) =>
     post.comments?.filter((c) => String(c.parentId) === String(parentId)) || [];
@@ -359,7 +337,6 @@ export const PostDetail: React.FC = () => {
 
                   return (
                     <React.Fragment key={c.id}>
-                      {/* Comentário Principal */}
                       <CommentCard>
                         <CommentHeader>
                           <strong>👤 {commentAuthor} escreveu:</strong>
@@ -385,7 +362,6 @@ export const PostDetail: React.FC = () => {
                         <CommentBody>{c.content || c.text}</CommentBody>
                       </CommentCard>
 
-                      {/* Respostas Aninhadas abaixo do Comentário do Aluno */}
                       {replies.map((reply) => {
                         const replyAuthor =
                           typeof reply.author === 'object'
@@ -454,7 +430,7 @@ export const PostDetail: React.FC = () => {
                   rows={4}
                   placeholder={
                     replyingTo
-                      ? 'Escreva sua resposta para o aluno...'
+                      ? 'Escreva sua resposta...'
                       : 'Deixe uma colaboração ou dúvida acadêmica...'
                   }
                   value={newComment}

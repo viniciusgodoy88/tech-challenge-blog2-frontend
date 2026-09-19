@@ -118,7 +118,6 @@ export const CreatePost: React.FC = () => {
   const [loadingData, setLoadingData] = useState(isEditing);
   const [error, setError] = useState('');
 
-  // 🟢 Carrega os dados do post quando estiver em modo de edição (/posts/edit/:id)
   useEffect(() => {
     if (isEditing && id) {
       setLoadingData(true);
@@ -151,17 +150,22 @@ export const CreatePost: React.FC = () => {
       };
 
       if (isEditing && id) {
-        // Atualiza o post existente
         await api.put(`/posts/${id}`, payload);
       } else {
-        // Cria novo post
         await api.post('/posts', payload);
       }
 
       navigate('/admin');
     } catch (err: any) {
       console.error('Erro ao salvar post:', err);
-      setError(err.response?.data?.error || 'Erro ao salvar a postagem acadêmica.');
+      const status = err.response?.status;
+      if (status === 403) {
+        setError('Acesso negado: apenas professores têm permissão para criar ou editar postagens.');
+      } else if (status === 401) {
+        setError('Sessão expirada. Faça login novamente.');
+      } else {
+        setError(err.response?.data?.error || 'Erro ao salvar a postagem acadêmica.');
+      }
     } finally {
       setLoading(false);
     }
@@ -201,7 +205,7 @@ export const CreatePost: React.FC = () => {
               <label>Título da Postagem:</label>
               <input
                 type="text"
-                placeholder="Ex: Introdução ao Arquiteturas de Microsserviços"
+                placeholder="Ex: Introdução a Arquiteturas de Microsserviços"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
